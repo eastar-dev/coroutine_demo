@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Coroutines demo</string>
+    <string name="title_activity_maps">Coroutines</string>
+</resources>
