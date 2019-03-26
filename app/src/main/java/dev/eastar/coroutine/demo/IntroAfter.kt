@@ -19,7 +19,6 @@ class IntroAfter : AppCompatActivity() {
             setOnClickListener { load() }
             text = "start intro after"
         })
-        load()
     }
 
     //test stateus

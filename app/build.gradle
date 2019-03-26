@@ -66,5 +66,5 @@ dependencies {
     implementation 'com.jakewharton.rxbinding2:rxbinding:2.2.0'// rxandroid
 
     //log
-    implementation 'com.github.djrain:log:3.0.2'
+    implementation 'com.github.djrain:log:3.0.4'
 }
