@@ -1,12 +1,17 @@
+@file:Suppress("NonAsciiCharacters", "SpellCheckingInspection", "MemberVisibilityCanBePrivate")
+
 package dev.eastar.coroutine.demo
 
-import android.log.Log
-import io.reactivex.Observable
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Test
+import java.io.ByteArrayOutputStream
+import java.net.HttpURLConnection
+import java.net.URL
 import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit
+import java.util.concurrent.Semaphore
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
@@ -18,52 +23,145 @@ import kotlin.coroutines.suspendCoroutine
  */
 class UnitTestWithCoroutine {
 
-    @Test
-    fun concatTest() {
-        Log.MODE = Log.eMODE.SYSTEMOUT
-
-        val result = waitResult<String> {
-            val resultString = StringBuilder()
-            val shapes = listOf("A", "B", "C", "D", "E")
-            val colorList = listOf("red", "yellow", "blue")
-            Observable.concat(
-                    Observable.interval(0L, 30L, TimeUnit.MILLISECONDS)
-                            .map { index -> shapes[index.toInt()] }
-                            .take(shapes.size.toLong()),
-                    Observable.interval(0L, 100L, TimeUnit.MILLISECONDS)
-                            .map { index -> colorList[index.toInt()] }
-                            .take(colorList.size.toLong()))
-                    .subscribe({
-                        resultString.append(it)
-                        println("${Thread.currentThread()} $it")
-                    }, {
-
-                    }, {
-                        it.resume(resultString.toString())
-                    })
+    fun asyndFun(callback: (Int) -> Unit) {
+        Executors.newSingleThreadExecutor().execute {
+            println("  work thread start")
+            Thread.sleep(1000)
+            callback(2 + 2)
+            println("  work thread end")
         }
-
-        assertEquals("ABCDEredyellowblue", result)
     }
 
     @Test
-    fun simpleSample() {
-        Log.MODE = Log.eMODE.SYSTEMOUT
-        val result = waitResult<Int> {
-            Executors.newSingleThreadExecutor().execute {
-                it.resume(2 + 2)
-            }
+    fun `Bad case 1 must fail`() {
+        println("main thread start")
+
+        asyndFun {
+            println("main thread check assert") //이 로그는 확인 할 수가 없어요
+            assertEquals(3, it)
+        }
+
+        println("main thread end")
+    }
+
+    @Test
+    fun `Bad case 2 must success`() {
+        println("main thread start")
+        var result = -1
+        asyndFun {
+            println("main thread check assert") //이 로그는 확인 할 수가 없어요
+            result = it
         }
         assertEquals(4, result)
-    }
-}
 
-fun <T> waitResult(block: (Continuation<T>) -> Unit): T? {
-    var result: T? = null
-    runBlocking {
-        result = suspendCoroutine<T> {
-            block(it)
-        }
+        println("main thread end")
     }
-    return result
+
+    @Test
+    fun `use Semaphore를 이용한 동기화 사용`() {
+        println("main thread start")
+        val semaphore = Semaphore(0)
+        var result = -1
+
+        asyndFun {
+            result = it
+            semaphore.release()
+        }
+        println("main thread check assert")
+        semaphore.acquire()
+        assert(4 == result)
+        println("main thread end")
+    }
+
+    @Test
+    fun `use suspendCoroutine`() {
+        println("main thread start")
+
+        var result: Int? = null
+        runBlocking {
+            result = suspendCoroutine<Int> { continuation ->
+                asyndFun {
+                    continuation.resume(it)
+                }
+            }
+        }
+
+        println("main thread check assert")
+        assertEquals(4, result)
+        println("main thread end")
+    }
+
+    @Test
+    fun `use suspendCoroutine final`() {
+        println("main thread start")
+        val result = block<Int> { continuation ->
+            asyndFun {
+                continuation.resume(it)
+            }
+        }
+        println("main thread check assert")
+        assertEquals(4, result)
+        println("main thread end")
+    }
+
+    fun <T> block(block: (Continuation<T>) -> Unit): T? {
+        var result: T? = null
+        runBlocking {
+            result = suspendCoroutine<T> {
+                block(it)
+            }
+        }
+        return result
+    }
+
+    @Test
+    fun `use Channel 1`() = runBlocking {
+        println("main thread start")
+        val channel = Channel<Int>()
+        Executors.newSingleThreadExecutor().execute {
+            launch {
+                println("  work thread start")
+                channel.send(2 + 2)
+                println("  work thread end")
+            }
+        }
+        println("main thread check assert")
+        val result = channel.receive()
+        assertEquals(4, result)
+        println("main thread end")
+    }
+
+    @Test
+    fun `use Channel final`() = runBlocking {
+        println("main thread start")
+        val channel = Channel<Int>()
+
+        asyndFun {
+            launch { channel.send(it) }
+        }
+
+        println("main thread check assert")
+        val result = channel.receive()
+        assertEquals(4, result)
+        println("main thread end")
+    }
+
+    @Test
+    fun `unit test에서는 잘도는 network 작업`() {
+        println("main thread start")
+
+        var url = "http://127.0.0.1/veryBigFile.iso"
+        val conn = (URL(url).openConnection() as HttpURLConnection)
+        val responseCode = conn.responseCode
+        println("main thread check assert step 1")
+        assertEquals(200, responseCode)
+
+        val os = ByteArrayOutputStream(1024 * 10)
+        val size = conn.inputStream.copyTo(os)
+        os.close()
+        println("main thread check assert step 2")
+        assertEquals(5508, size)
+
+        println("main thread end")
+    }
 }
