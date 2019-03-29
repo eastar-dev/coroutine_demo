@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "803881344308",
+    "firebase_url": "https://coroutine-demo.firebaseio.com",
+    "project_id": "coroutine-demo",
+    "storage_bucket": "coroutine-demo.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:803881344308:android:9d2f8ba3d06a02d2",
+        "android_client_info": {
+          "package_name": "dev.eastar.coroutine.demo"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "803881344308-8vakl5vs6rdbdompk7osb72l9lisj710.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "dev.eastar.coroutine.demo",
+            "certificate_hash": "cc5332745f8ba1f419bdc8f5b01c9c68ef19e860"
+          }
+        },
+        {
+          "client_id": "803881344308-3k06gmj7lk323dsijql9pip1s9n25jf5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBlNmSC71lMpWfWea2IMgq6l9V6BQSGjEE"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "803881344308-3k06gmj7lk323dsijql9pip1s9n25jf5.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
