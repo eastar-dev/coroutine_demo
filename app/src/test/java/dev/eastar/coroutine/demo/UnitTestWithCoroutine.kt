@@ -23,7 +23,7 @@ import kotlin.coroutines.suspendCoroutine
  */
 class UnitTestWithCoroutine {
 
-    fun asyndFun(callback: (Int) -> Unit) {
+    fun asyncFun(callback: (Int) -> Unit) {
         Executors.newSingleThreadExecutor().execute {
             println("  work thread start")
             Thread.sleep(1000)
@@ -36,7 +36,7 @@ class UnitTestWithCoroutine {
     fun `Bad case 1 must fail`() {
         println("main thread start")
 
-        asyndFun {
+        asyncFun {
             println("main thread check assert") //이 로그는 확인 할 수가 없어요
             assertEquals(3, it)
         }
@@ -48,7 +48,7 @@ class UnitTestWithCoroutine {
     fun `Bad case 2 must success`() {
         println("main thread start")
         var result = -1
-        asyndFun {
+        asyncFun {
             println("main thread check assert") //이 로그는 확인 할 수가 없어요
             result = it
         }
@@ -63,7 +63,7 @@ class UnitTestWithCoroutine {
         val semaphore = Semaphore(0)
         var result = -1
 
-        asyndFun {
+        asyncFun {
             result = it
             semaphore.release()
         }
@@ -80,7 +80,7 @@ class UnitTestWithCoroutine {
         var result: Int? = null
         runBlocking {
             result = suspendCoroutine<Int> { continuation ->
-                asyndFun {
+                asyncFun {
                     continuation.resume(it)
                 }
             }
@@ -95,7 +95,7 @@ class UnitTestWithCoroutine {
     fun `use suspendCoroutine final`() {
         println("main thread start")
         val result = block<Int> { continuation ->
-            asyndFun {
+            asyncFun {
                 continuation.resume(it)
             }
         }
@@ -136,7 +136,7 @@ class UnitTestWithCoroutine {
         println("main thread start")
         val channel = Channel<Int>()
 
-        asyndFun {
+        asyncFun {
             launch { channel.send(it) }
         }
 
