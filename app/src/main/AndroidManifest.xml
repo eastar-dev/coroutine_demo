@@ -65,7 +65,33 @@
         </activity>
         <activity
             android:name=".DownloadWorkAfter"
-            android:label="DownloadWork Afger">
+            android:label="DownloadWork After">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.kebhana.hanapush.transfer.FirebaseBefore"
+            android:label="Firebase Before">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <!--<intent-filter>-->
+                <!--<action android:name="android.intent.action.VIEW" />-->
+
+                <!--<category android:name="android.intent.category.BROWSABLE" />-->
+                <!--<category android:name="android.intent.category.DEFAULT" />-->
+
+                <!--<data-->
+                    <!--android:host="droidknights.github.io"-->
+                    <!--android:scheme="https" />-->
+            <!--</intent-filter>-->
+        </activity>
+        <activity
+            android:name="com.kebhana.hanapush.transfer.FirebaseAfter"
+            android:label="Firebase After">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
