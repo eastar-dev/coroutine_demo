@@ -78,7 +78,7 @@ class DownloadWorkBefore : AppCompatActivity() {
                 .run()
     }
 
-    @Suppress("SpellCheckingInspection")
+    @Suppress("SpellCheckingInspection", "UNUSED_PARAMETER")
     private fun downloadStart(url: String, userAgent: String, contentDisposition: String, mimetype: String, contentLength: Long) {
         val context = applicationContext
 

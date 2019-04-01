@@ -1,179 +1,97 @@
 package dev.eastar.coroutine.demo
 
-import android.content.Context
 import android.content.Intent
 import android.log.Log
 import android.net.Uri
 import android.os.Bundle
 import android.widget.Button
-import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
-import com.google.android.gms.common.internal.ConnectionErrorMessages.getAppName
-import kotlinx.coroutines.*
+import com.google.firebase.dynamiclinks.DynamicLink
+import com.google.firebase.dynamiclinks.FirebaseDynamicLinks
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 
-class FirebaseAfter : AppCompatActivity() {
+class FirebaseAfter : BaseActivity() {
+    lateinit var button: Button
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(Button(this).apply {
-            setOnClickListener { load() }
-            text = "start intro after"
-        })
+        setContentView(Button(this)
+                .apply {
+                    text = "Firebase Dynamic Links"
+                }.also { button ->
+                    this.button = button
+                })
+        dynamicLinks()
     }
 
-    //test stateus
-    companion object {
-        val IS_ROOTING = false
-        val NOT_INSTALLED_V3 = false
-        val HAS_EVENT = false
-    }
-
-    fun load() = CoroutineScope(Dispatchers.Main).launch {
-        Log.e(0)
-        toast("rootingChecked : start")
-        step00RootingCheck()
-        toast("rootingChecked : end")
-        Log.e(1)
-        toast("step01v3Check : start")
-        step01v3Check()
-        toast("step01v3Check : end")
-        Log.e(2)
-        val deferredGcm = async {
-            toast("step04gcmCheck : start")
-            step04gcmCheck()
-            toast("step04gcmCheck : end")
-            Log.e(3)
-        }
-        val deferredBanner = async {
-            toast("step06assetBannerCheck : start")
-            step06assetBannerCheck()
-            toast("step06assetBannerCheck : end")
-            Log.e(4)
-        }
-        Log.e(5)
-        toast("step07v3UpdateCheck : start")
-        step07v3UpdateCheck()
-        toast("step07v3UpdateCheck : end")
-        Log.e(6)
-        toast("step11noticeCheck : start")
-        step11noticeCheck()
-        toast("step11noticeCheck : end")
-        Log.e(7)
-        toast("step12checkSSO : start")
-        step12checkSSO()
-        toast("step12checkSSO : end")
-        Log.e(8)
-        toast("await : start")
-        deferredGcm.await()
-        deferredBanner.await()
-        toast("await : end")
-        Log.e(99)
-    }
-
-    private suspend fun step00RootingCheck() = suspendCancellableCoroutine<Unit> { continuation ->
-        if (IS_ROOTING) {// 루팅 또는 기타오류
-            val message = "루팅된 단말입니다. 개인정보 유출의 위험성이 있으므로 " + getAppName(this@FirebaseAfter) + "를 종료합니다."
-            AlertDialog.Builder(this).setMessage(message)
-                    .setPositiveButton("종료", null)
-                    .setCancelable(false)
-                    .setOnDismissListener {
-                        continuation.cancel()
-                        exit()
-                    }
-                    .show()
-            return@suspendCancellableCoroutine
-        }
-        continuation.resume(Unit)
-    }
-
-    private suspend fun step01v3Check() = suspendCancellableCoroutine<Unit> { continuation ->
-        executeV3Module(object : V3MobilePlusResultListener {
-            override fun OnInstallCompleted() {
-                continuation.resume(Unit)
-            }
-
-            override fun OnPatchState(arg0: Boolean) {}
-            override fun OnV3MobilePlusStarted() {}
-        })
-    }
-
-    private fun step04gcmCheck() {
-        gcmRegister(applicationContext, "GCM_SENDER_ID")
-    }
-
-    private fun step06assetBannerCheck() {
-        //do banner work
-    }
-
-    private suspend fun step07v3UpdateCheck() = suspendCancellableCoroutine<Unit> { continuation ->
-        if (NOT_INSTALLED_V3) {
-            AlertDialog.Builder(this).setMessage("V3 설치안됨")
-                    .setPositiveButton("설치하기") { _, _ ->
-                        val intent = Intent(Intent.ACTION_VIEW)
-                        intent.data = Uri.parse("market://details?id=com.ahnlab.v3mobileplus")
-                        startActivity(intent)
-                        continuation.cancel()
-                    }
-                    .setNegativeButton("종료") { _, _ ->
-                        continuation.cancel()
-                    }
-                    .show()
-            return@suspendCancellableCoroutine
-        }
-        continuation.resume(Unit)
-    }
-
-    private suspend fun step11noticeCheck() = suspendCancellableCoroutine<Unit> { continuation ->
+    fun dynamicLinks() = CoroutineScope(Dispatchers.Main).launch {
         try {
-            if (HAS_EVENT) {
-                AlertDialog.Builder(this)
-                        .setMessage("신규 고객 이벤트")
-                        .setPositiveButton("참여하기") { _, _ ->
-                            startActivity(Intent("android.intent.action.EVENT_VIEW"))
-                            continuation.cancel()
-                        }
-                        .setNegativeButton("나중에보기") { _, _ ->
-                            continuation.resume(Unit)
-                        }
-                        .show()
-                return@suspendCancellableCoroutine
-            }
+            showProgress()
+            val builder = getDynamicLinkBuilder()
+            setSharing(builder.buildDynamicLink().uri)
+            val uri = getShortLink(builder)
+            setSharing(uri)
+        } catch (e: Exception) {
+            e.printStackTrace()
         } finally {
-            continuation.resume(Unit)
+            dismissProgress()
         }
     }
 
-    private fun step12checkSSO() {
-        main()
+    private fun getDynamicLinkBuilder(): DynamicLink.Builder {
+        val url = "https://droidknights.github.io/2019/"
+        val url_image = "https://droidknights.github.io/2019/static/media/2019_dk_title.cf69c879.png"
+        return FirebaseDynamicLinks.getInstance()
+                .createDynamicLink()
+                .setDomainUriPrefix("https://coroutine.page.link")
+                .setLink(Uri.parse(url))
+                .setSocialMetaTagParameters(
+                        DynamicLink.SocialMetaTagParameters.Builder().apply {
+                            setTitle("드로이드 나이츠 2019")
+                            setDescription("드로이드 나이츠 2019 초대하기")
+                            setImageUrl(Uri.parse(url_image))//setImageUrl	이 링크와 관련된 이미지의 URL입니다. 이미지는 300x200픽셀 이상, 300KB 미만이어야 합니다.
+                        }.build())
     }
 
-    //------------------------------------------------------------------------------------------
-    private fun executeV3Module(v3MobilePlusResultListener: V3MobilePlusResultListener?) {
-        v3MobilePlusResultListener?.OnInstallCompleted()
+    private suspend fun getShortLink(builder: DynamicLink.Builder): Uri = suspendCancellableCoroutine { continuation ->
+        builder.buildShortDynamicLink().apply {
+            addOnSuccessListener {
+                continuation.resume(it.shortLink)
+            }
+            addOnCanceledListener {
+                continuation.cancel()
+            }
+            addOnFailureListener {
+                continuation.resumeWithException(it)
+            }
+
+            //for log
+            addOnCompleteListener {
+                Log.w(it.exception?.printStackTrace())
+                if (it.isSuccessful)
+                    Log.i(it.result?.shortLink)
+                else
+                    Log.w(it.isSuccessful)
+            }
+
+            continuation.invokeOnCancellation {
+
+            }
+        }
     }
 
-    private fun gcmRegister(applicationContext: Context?, gcM_SENDER_ID: Any?) {
-
+    fun setSharing(shortLink: Uri) {
+        val sharingIntent = Intent(Intent.ACTION_SEND).apply {
+            action = Intent.ACTION_SEND
+            putExtra(Intent.EXTRA_TEXT, shortLink?.toString())
+            type = "text/plain"
+        }
+        button.setOnClickListener { startActivity(Intent.createChooser(sharingIntent, "드로이드 나이츠 2019")) }
     }
 
-    private fun isV3Updated(): Boolean {
-        return false
-    }
-
-    private fun exit() {
-//        finish()
-        toast("종료됨")
-        Log.e("종료됨")
-    }
-
-    private fun main() {
-//        finish()
-    }
-
-    interface V3MobilePlusResultListener {
-        fun OnInstallCompleted()
-        fun OnPatchState(arg0: Boolean)
-        fun OnV3MobilePlusStarted()
-    }
 }
 

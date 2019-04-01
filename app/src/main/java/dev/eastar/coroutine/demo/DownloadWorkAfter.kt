@@ -84,7 +84,7 @@ class DownloadWorkAfter : AppCompatActivity() {
                 .run()
     }
 
-    @Suppress("SpellCheckingInspection")
+    @Suppress("SpellCheckingInspection", "UNUSED_PARAMETER")
     fun downloadStart(url: String, userAgent: String, contentDisposition: String, mimetype: String, contentLength: Long) {
         val filename = URLUtil.guessFileName(url, contentDisposition, mimetype)
 
