@@ -46,7 +46,6 @@ class FirebaseBefore : BaseActivity() {
         builder.apply {
             buildShortDynamicLink().apply {
                 addOnCompleteListener { task ->
-                    //        Log.w(task.isSuccessful(), task.getException())
                     task.exception?.printStackTrace()
                     if (!task.isSuccessful) return@addOnCompleteListener
                     Log.i(task.result?.shortLink)

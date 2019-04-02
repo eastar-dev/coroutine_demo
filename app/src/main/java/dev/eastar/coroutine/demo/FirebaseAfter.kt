@@ -59,16 +59,10 @@ class FirebaseAfter : BaseActivity() {
 
     private suspend fun getShortLink(builder: DynamicLink.Builder): Uri = suspendCancellableCoroutine { continuation ->
         builder.buildShortDynamicLink().apply {
-            addOnSuccessListener {
-                continuation.resume(it.shortLink)
-            }
-            addOnCanceledListener {
-                continuation.cancel()
-            }
-            addOnFailureListener {
-                continuation.resumeWithException(it)
-            }
-
+            addOnSuccessListener { continuation.resume(it.shortLink) }
+            addOnCanceledListener { continuation.cancel() }
+            addOnFailureListener { continuation.resumeWithException(it) }
+            continuation.invokeOnCancellation { Log.w("invokeOnCancellation", it) }
             //for log
             addOnCompleteListener {
                 Log.w(it.exception?.printStackTrace())
@@ -76,10 +70,6 @@ class FirebaseAfter : BaseActivity() {
                     Log.i(it.result?.shortLink)
                 else
                     Log.w(it.isSuccessful)
-            }
-
-            continuation.invokeOnCancellation {
-
             }
         }
     }
