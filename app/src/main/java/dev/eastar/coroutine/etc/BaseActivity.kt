@@ -1,4 +1,4 @@
-package dev.eastar.coroutine.demo
+package dev.eastar.coroutine.etc
 
 import android.app.Dialog
 import android.graphics.drawable.ColorDrawable

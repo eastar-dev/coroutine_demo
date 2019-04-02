@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.widget.Button
 import com.google.firebase.dynamiclinks.DynamicLink
 import com.google.firebase.dynamiclinks.FirebaseDynamicLinks
+import dev.eastar.coroutine.etc.BaseActivity
 
 class FirebaseBefore : BaseActivity() {
     lateinit var button: Button

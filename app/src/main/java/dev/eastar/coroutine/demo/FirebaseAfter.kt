@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.widget.Button
 import com.google.firebase.dynamiclinks.DynamicLink
 import com.google.firebase.dynamiclinks.FirebaseDynamicLinks
+import dev.eastar.coroutine.etc.BaseActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -44,7 +45,7 @@ class FirebaseAfter : BaseActivity() {
 
     private fun getDynamicLinkBuilder(): DynamicLink.Builder {
         val url = "https://droidknights.github.io/2019/"
-        val url_image = "https://droidknights.github.io/2019/static/media/2019_dk_title.cf69c879.png"
+        val url_image = "https://raw.githubusercontent.com/djrain/coroutine_demo/master/release/logobank.png"
         return FirebaseDynamicLinks.getInstance()
                 .createDynamicLink()
                 .setDomainUriPrefix("https://coroutine.page.link")
@@ -79,15 +80,15 @@ class FirebaseAfter : BaseActivity() {
             }
 
             continuation.invokeOnCancellation {
-
+                Log.e(it)
             }
         }
     }
 
-    fun setSharing(shortLink: Uri) {
+    private fun setSharing(shortLink: Uri) {
         val sharingIntent = Intent(Intent.ACTION_SEND).apply {
             action = Intent.ACTION_SEND
-            putExtra(Intent.EXTRA_TEXT, shortLink?.toString())
+            putExtra(Intent.EXTRA_TEXT, shortLink.toString())
             type = "text/plain"
         }
         button.setOnClickListener { startActivity(Intent.createChooser(sharingIntent, "드로이드 나이츠 2019")) }

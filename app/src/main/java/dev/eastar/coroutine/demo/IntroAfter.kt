@@ -9,6 +9,7 @@ import android.widget.Button
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.gms.common.internal.ConnectionErrorMessages.getAppName
+import dev.eastar.coroutine.etc.toast
 import kotlinx.coroutines.*
 import kotlin.coroutines.resume
 
