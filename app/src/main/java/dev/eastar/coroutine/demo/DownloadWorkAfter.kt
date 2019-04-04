@@ -69,18 +69,16 @@ class DownloadWorkAfter : AppCompatActivity() {
     private fun setDownload() {
         webview.setDownloadListener { url, userAgent, contentDisposition, mimetype, contentLength ->
             CoroutineScope(Dispatchers.Main).launch {
-                checkPermissionWork()
+                checkPermission()
                 downloadStart(url, userAgent, contentDisposition, mimetype, contentLength)
             }
         }
     }
 
-    private suspend fun checkPermissionWork() = suspendCancellableCoroutine<Unit> { cancellableContinuation ->
+    private suspend fun checkPermission() = suspendCancellableCoroutine<Unit> { cancellableContinuation ->
         PermissionRequest.builder(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                .setRequestMessage("파일 저장 권한을 주셔야만 작업이 가능합니다.")
                 .setOnPermissionGrantedListener { cancellableContinuation.resume(Unit) }
                 .setOnPermissionDeniedListener { _, _ -> cancellableContinuation.cancel() }
-                .setDenyMessage("파일 저장 권한을 주셔야만 작업이 가능합니다.")
                 .run()
     }
 
