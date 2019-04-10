@@ -74,18 +74,13 @@ class UnitTestWithCoroutine {
     }
 
     @Test
-    fun `use suspendCoroutine`() {
+    fun `use suspendCoroutine`() = runBlocking {
         println("main thread start")
-
-        var result: Int? = null
-        runBlocking {
-            result = suspendCoroutine<Int> { continuation ->
-                asyncFun {
-                    continuation.resume(it)
-                }
+        val result = suspendCoroutine<Int> { continuation ->
+            asyncFun {
+                continuation.resume(it)
             }
         }
-
         println("main thread check assert")
         assertEquals(4, result)
         println("main thread end")
@@ -164,4 +159,5 @@ class UnitTestWithCoroutine {
 
         println("main thread end")
     }
+
 }

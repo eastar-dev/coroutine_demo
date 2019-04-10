@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".AppMain">
+
+    <data>
+
+        <variable
+            name="viewModel"
+            type="dev.eastar.coroutine.demo.AppMainViewModel" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/UIthreadrunBlocking"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:onClickListener="@{viewModel.testUIthreadrunBlocking}"
+            android:text="UI thread runBlocking"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/DownloadWorkBefore"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:onClickListener="@{viewModel.testDownloadWorkBefore}"
+            android:text="Download Work Before"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/UIthreadrunBlocking" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/DownloadWorkAfter"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:onClickListener="@{viewModel.testDownloadWorkAfter}"
+            android:text="Download Work After"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/DownloadWorkBefore" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/FirebaseBefore"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:onClickListener="@{viewModel.testFirebaseBefore}"
+            android:text="Firebase Before"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/DownloadWorkAfter" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/FirebaseAfter"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:onClickListener="@{viewModel.testFirebaseAfter}"
+            android:text="Firebase After"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/FirebaseBefore" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/IntroBefore"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:onClickListener="@{viewModel.testIntroBefore}"
+            android:text="Intro Before"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/FirebaseAfter" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/IntroAfter"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:onClickListener="@{viewModel.testIntroAfter}"
+            android:text="Intro After"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/IntroBefore" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

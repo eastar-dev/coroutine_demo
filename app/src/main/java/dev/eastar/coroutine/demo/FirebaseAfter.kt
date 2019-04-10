@@ -12,6 +12,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
+import java.util.*
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
@@ -74,6 +75,18 @@ class FirebaseAfter : BaseActivity() {
             }
         }
     }
+
+
+
+    var keep = 0L
+
+    fun nano() = (if (keep == 0L) 0L else System.nanoTime() - keep)
+            .also {
+                keep = System.nanoTime()
+            }.comma
+
+    private val Long.comma: String
+        get() = String.format(Locale.getDefault(), "%,25d", this)
 
     private fun setSharing(shortLink: Uri) {
         val sharingIntent = Intent(Intent.ACTION_SEND).apply {

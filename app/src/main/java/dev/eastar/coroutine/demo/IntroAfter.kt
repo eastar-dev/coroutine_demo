@@ -26,7 +26,7 @@ class IntroAfter : AppCompatActivity() {
     companion object {
         val IS_ROOTING = false
         val NOT_INSTALLED_V3 = false
-        val HAS_EVENT = false
+        val HAS_EVENT = true
     }
 
     fun load() = CoroutineScope(Dispatchers.Main).launch {
@@ -75,13 +75,13 @@ class IntroAfter : AppCompatActivity() {
         if (IS_ROOTING) {// 루팅 또는 기타오류
             val message = "루팅된 단말입니다. 개인정보 유출의 위험성이 있으므로 " + getAppName(this@IntroAfter) + "를 종료합니다."
             AlertDialog.Builder(this).setMessage(message)
-                    .setPositiveButton("종료", null)
-                    .setCancelable(false)
-                    .setOnDismissListener {
-                        continuation.cancel()
-                        exit()
-                    }
-                    .show()
+                .setPositiveButton("종료", null)
+                .setCancelable(false)
+                .setOnDismissListener {
+                    continuation.cancel()
+                    exit()
+                }
+                .show()
             return@suspendCancellableCoroutine
         }
         continuation.resume(Unit)
@@ -109,40 +109,39 @@ class IntroAfter : AppCompatActivity() {
     private suspend fun step07v3UpdateCheck() = suspendCancellableCoroutine<Unit> { continuation ->
         if (NOT_INSTALLED_V3) {
             AlertDialog.Builder(this).setMessage("V3 설치안됨")
-                    .setPositiveButton("설치하기") { _, _ ->
-                        val intent = Intent(Intent.ACTION_VIEW)
-                        intent.data = Uri.parse("market://details?id=com.ahnlab.v3mobileplus")
-                        startActivity(intent)
-                        continuation.cancel()
-                    }
-                    .setNegativeButton("종료") { _, _ ->
-                        continuation.cancel()
-                    }
-                    .show()
+                .setPositiveButton("설치하기") { _, _ ->
+                    val intent = Intent(Intent.ACTION_VIEW)
+                    intent.data = Uri.parse("market://details?id=com.ahnlab.v3mobileplus")
+                    startActivity(intent)
+                    continuation.cancel()
+                }
+                .setNegativeButton("종료") { _, _ ->
+                    continuation.cancel()
+                }
+                .show()
             return@suspendCancellableCoroutine
         }
         continuation.resume(Unit)
     }
 
-    private suspend fun step11noticeCheck() = suspendCancellableCoroutine<Unit> { continuation ->
-        try {
-            if (HAS_EVENT) {
-                AlertDialog.Builder(this)
-                        .setMessage("신규 고객 이벤트")
-                        .setPositiveButton("참여하기") { _, _ ->
-                            startActivity(Intent("android.intent.action.EVENT_VIEW"))
-                            continuation.cancel()
-                        }
-                        .setNegativeButton("나중에보기") { _, _ ->
-                            continuation.resume(Unit)
-                        }
-                        .show()
-                return@suspendCancellableCoroutine
-            }
-        } finally {
-            continuation.resume(Unit)
+    private suspend fun step11noticeCheck() = suspendCancellableCoroutine<String> { continuation ->
+        if (HAS_EVENT) {
+            continuation.resume("")
+            return@suspendCancellableCoroutine
         }
+        AlertDialog.Builder(this)
+            .setMessage("신규 고객 이벤트")
+            .setPositiveButton("참여하기") { _, _ ->
+                continuation.resume("https://event.bank.com")
+            }
+            .setNegativeButton("나중에보기", null)
+            .setOnDismissListener {
+                if (!continuation.isCompleted)
+                    continuation.resume("")
+            }
+            .show()
     }
+
 
     private fun step12checkSSO() {
         main()

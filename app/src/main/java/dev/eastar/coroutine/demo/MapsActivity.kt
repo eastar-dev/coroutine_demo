@@ -19,6 +19,7 @@ import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.functions.BiFunction
+import kotlinx.android.synthetic.main.activity_maps.*
 import java.util.concurrent.TimeUnit
 
 typealias Position = Pair<LatLng, Marker>
@@ -43,6 +44,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                     lifecycleOwner = this@MapsActivity
                     viewModel = vm
                 }
+
+
+        runBlocking.setOnClickListener { finish() }
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
