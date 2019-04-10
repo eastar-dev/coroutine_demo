@@ -11,6 +11,7 @@ import android.permission.PermissionRequest
 import android.webkit.*
 import android.widget.Toast
 import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 
 class DownloadWorkBefore : AppCompatActivity() {
@@ -50,15 +51,7 @@ class DownloadWorkBefore : AppCompatActivity() {
 
         webview.webViewClient = BWebViewClient()
 
-        setDownload()
-    }
-
-    private fun setDownload() {
-        webview.setDownloadListener { url, userAgent, contentDisposition, mimetype, contentLength ->
-            checkPermission(PermissionRequest.OnPermissionGrantedListener {
-                downloadStart(url, userAgent, contentDisposition, mimetype, contentLength)
-            })
-        }
+        setDownload(this)
     }
 
     inner class BWebViewClient : WebViewClient() {
@@ -69,32 +62,54 @@ class DownloadWorkBefore : AppCompatActivity() {
         }
     }
 
-    private fun checkPermission(grentListener: PermissionRequest.OnPermissionGrantedListener) {
-        val context = applicationContext
-        PermissionRequest.builder(context, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                .setRequestMessage("파일 저장 권한을 주셔야만 작업이 가능합니다.")
-                .setOnPermissionGrantedListener { grentListener.onGranted() }
+    private fun setDownload(context: Context) {
+        webview.setDownloadListener { url, userAgent, contentDisposition, mimetype, contentLength ->
+            PermissionRequest.builder(context, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 .setDenyMessage("파일 저장 권한을 주셔야만 작업이 가능합니다.")
+                .setOnPermissionGrantedListener {
+                    val filename = URLUtil.guessFileName(url, contentDisposition, mimetype)
+                    DownloadManager.Request(Uri.parse(url)).apply {
+                        setMimeType(mimetype)
+                        setDescription("Download file...")
+                        setTitle(filename)
+                        allowScanningByMediaScanner()
+                        setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED) //Notify client once download is completed!
+                        setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, filename)
+                    }.also { request ->
+                        val dm = context.getSystemService(Context.DOWNLOAD_SERVICE) as?  DownloadManager
+                        dm?.enqueue(request)
+                        Toast.makeText(context, filename, Toast.LENGTH_LONG).show()
+                    }
+                }
                 .run()
-    }
-
-    @Suppress("SpellCheckingInspection", "UNUSED_PARAMETER")
-    private fun downloadStart(url: String, userAgent: String, contentDisposition: String, mimetype: String, contentLength: Long) {
-        val context = applicationContext
-
-        val filename = URLUtil.guessFileName(url, contentDisposition, mimetype)
-        DownloadManager.Request(Uri.parse(url)).apply {
-            setMimeType(mimetype)
-            setDescription("Download file...")
-            setTitle(filename)
-            allowScanningByMediaScanner()
-            setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED) //Notify client once download is completed!
-            setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, filename)
-        }.also { request ->
-            val dm = context.getSystemService(Context.DOWNLOAD_SERVICE) as?  DownloadManager
-            dm?.enqueue(request)
-            Toast.makeText(context, filename, Toast.LENGTH_LONG).show()
         }
     }
+
+    private fun setDownload2(context: Context) {
+        webview.setDownloadListener { url, userAgent, contentDisposition, mimetype, contentLength ->
+            AlertDialog.Builder(context)
+                .setMessage("다운로드 권한이 없습니다.")
+                .setPositiveButton("다운로드") { _, _ ->
+                    PermissionRequest.builder(context, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                        .setOnPermissionGrantedListener {
+                            val filename = URLUtil.guessFileName(url, contentDisposition, mimetype)
+                            DownloadManager.Request(Uri.parse(url)).apply {
+                                setMimeType(mimetype)
+                                setDescription("Download file...")
+                                setTitle(filename)
+                                allowScanningByMediaScanner()
+                                setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED) //Notify client once download is completed!
+                                setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, filename)
+                            }.also { request ->
+                                val dm = context.getSystemService(Context.DOWNLOAD_SERVICE) as?  DownloadManager
+                                dm?.enqueue(request)
+                                Toast.makeText(context, filename, Toast.LENGTH_LONG).show()
+                            }
+                        }
+                        .run()
+                }.show()
+        }
+    }
+
 }
 
