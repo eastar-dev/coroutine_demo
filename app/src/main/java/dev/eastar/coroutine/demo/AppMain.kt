@@ -1,6 +1,10 @@
 package dev.eastar.coroutine.demo
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProviders
@@ -19,5 +23,18 @@ class AppMain : AppCompatActivity() {
                 viewModel = vm
             }
 
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu_modify, menu)
+        return super.onCreateOptionsMenu(menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+        val id = item?.itemId
+        return when (id) {
+            R.id.done -> startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/djrain/coroutine_demo"))).let { true }
+            else -> super.onOptionsItemSelected(item)
+        }
     }
 }
