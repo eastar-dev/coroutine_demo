@@ -17,7 +17,7 @@ import androidx.appcompat.app.AppCompatActivity
 class DownloadWorkBefore : AppCompatActivity() {
 
     companion object {
-        const val URL = "https://github.com/droidknights/DroidKnights-Festival-2019-flutter/releases/tag/1.1.0"
+        const val URL = "https://github.com/djrain/coroutine_demo/releases/tag/1.0.0"
     }
 
     private lateinit var webview: WebView
